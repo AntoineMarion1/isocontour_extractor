@@ -10,7 +10,7 @@ Extract the iso-contours of a scalar field and stitch them together into a singl
 ## Clone the repository
 
 ```
-git clone --recursive https://github.com/AntoineMarion1/isocontour_extractor.git
+git clone https://github.com/AntoineMarion1/isocontour_extractor.git
 ```
 
 ## Install Conda environment and Python Module Dependencies
