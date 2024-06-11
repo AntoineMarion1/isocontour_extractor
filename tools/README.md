@@ -1,6 +1,8 @@
-# USE OF TOOLS 
+# Tools
 
-The main project code is in the `main.py` file. The other tools can be run after [`main.py`](#mainpy) was used: 
+The main project code is in the `main.py` file. This tool computes the isolines of the scalar field using the marching square algorithm, then stitch them to create one trajectory.
+
+The other tools can be run after [`main.py`](#mainpy) was used: 
 
 - [`visualise.py`](#visualisepy)
 - [`tosvg.py`](#tosvgpy)
@@ -43,7 +45,7 @@ Display the results of isocontour extraction in a window.
 
 
 ### Usage and example
-To be entered in the repository root console. 
+To be entered in the repository root console.
 
 ```
 python tools/visualise.py input_filename datatosee
