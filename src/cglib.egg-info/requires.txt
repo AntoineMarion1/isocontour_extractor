@@ -1,3 +1,0 @@
-taichi
-svgpathtools
-tqdm

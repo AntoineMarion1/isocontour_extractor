@@ -16,5 +16,7 @@ license = {file = "LICENSE"}
 dependencies = [
     "taichi",
     "svgpathtools",
-    "tqdm"
+    "tqdm",
+    "argparse",
+    "logging"
 ]

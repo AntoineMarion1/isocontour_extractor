@@ -6,10 +6,6 @@ from cglib.calc import compute_all_energies, compute_neighbours_energies
 
 
 
-ti.init(arch = ti.cpu)
-
-
-
 @ti.func
 def stitch_two_cycles(previous_edge: ti.template(), 
                       next_edge: ti.template(), 

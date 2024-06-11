@@ -2,10 +2,6 @@ import taichi as ti
 
 
 
-ti.init(arch = ti.cpu)
-
-
-
 @ti.func
 def reset_energies(energies: ti.template()): 
     '''
@@ -57,11 +53,14 @@ def find_minimum_in_field(f: ti.template())\
            
     ti.loop_config(serialize=True)
     for i in range(f.shape[0]):
-        if f[i] < minimal_value and f[i] != ti.math.inf: 
+        
+        if f[i] < minimal_value\
+              and f[i] != ti.math.inf: 
             minimal_value = f[i]
             index = i
 
-    return ti.math.vec2(minimal_value, index)
+    return ti.math.vec2(minimal_value, 
+                        index)
 
 @ti.kernel
 def count_cycles(cycles: ti.template())\

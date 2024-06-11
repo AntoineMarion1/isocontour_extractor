@@ -4,10 +4,6 @@ from cglib.index import index2d_to_cartesians_coo, edge_1d_to_3d_index, edge_3d_
 
 
 
-ti.init(arch = ti.cpu)
-
-
-
 @ti.func
 def linear_interpolation(grid: ti.template(), 
                          point_0_index : ti.math.ivec2, 
@@ -64,11 +60,11 @@ def linear_interpolation(grid: ti.template(),
                         res_y)
 
 @ti.func
-def euclidean_norm(vector: ti.math.vec2)\
+def euclidean_distance(vector: ti.math.vec2)\
                  -> float: 
 
     '''
-    Calculate the Euclidean norm of a two-dimensional vector.
+    Calculate the Euclidean distance of a two-dimensional vector.
 
     Parameters 
     -------
@@ -83,7 +79,7 @@ def euclidean_norm(vector: ti.math.vec2)\
 
     float: 
 
-        his Euclidean norm. 
+        his Euclidean distance. 
     '''
     return ti.math.sqrt(vector.x **2 + vector.y**2)
 
@@ -159,13 +155,13 @@ def compute_all_energies(points: ti.template(),
             j_1 = points[edge_J.x]
             j_2 = points[edge_J.y]
 
-            cross = euclidean_norm(i_1 - j_2) + euclidean_norm(i_2 - j_1) 
-            no_cross = euclidean_norm(i_1 - j_1) + euclidean_norm(i_2 - j_2)
+            cross = euclidean_distance(i_1 - j_2) + euclidean_distance(i_2 - j_1) 
+            no_cross = euclidean_distance(i_1 - j_1) + euclidean_distance(i_2 - j_2)
 
             if cross < no_cross: 
-                energy = cross - euclidean_norm(i_1 - i_2) - euclidean_norm(j_2 - j_1)
+                energy = cross - euclidean_distance(i_1 - i_2) - euclidean_distance(j_2 - j_1)
             else: 
-                energy = no_cross - euclidean_norm(i_1 - i_2) - euclidean_norm(j_2 - j_1)
+                energy = no_cross - euclidean_distance(i_1 - i_2) - euclidean_distance(j_2 - j_1)
 
             energies[index] = energy 
 
@@ -178,7 +174,8 @@ def compute_neighbours_energies(points: ti.template(),
                                 -> ti.math.vec2: 
     '''
     For a given edge of the graph, calculate all the patching energies between this edge 
-    and neighbouring edges not belonging to the same cycle. 
+    and neighbouring edges not belonging to the same cycle. The neighbouring edges are
+    the edges that are at a distance of 2 from the reference edge.
 
     Parameters 
     -------
@@ -252,15 +249,15 @@ def compute_neighbours_energies(points: ti.template(),
                     j_1 = points[edge_J.x]
                     j_2 = points[edge_J.y]
 
-                    cross = euclidean_norm(i_1 - j_2) + euclidean_norm(i_2 - j_1) 
-                    no_cross = euclidean_norm(i_1 - j_1) + euclidean_norm(i_2 - j_2)
+                    cross = euclidean_distance(i_1 - j_2) + euclidean_distance(i_2 - j_1) 
+                    no_cross = euclidean_distance(i_1 - j_1) + euclidean_distance(i_2 - j_2)
 
                     if cross < no_cross: 
-                        energy = cross - euclidean_norm(i_1 - i_2)\
-                          - euclidean_norm(j_2 - j_1)
+                        energy = cross - euclidean_distance(i_1 - i_2)\
+                          - euclidean_distance(j_2 - j_1)
                     else: 
-                        energy = no_cross - euclidean_norm(i_1 - i_2)\
-                          - euclidean_norm(j_2 - j_1)
+                        energy = no_cross - euclidean_distance(i_1 - i_2)\
+                          - euclidean_distance(j_2 - j_1)
 
                     if energy < minimal_energy and energy != ti.math.inf: 
                         minimal_energy = energy

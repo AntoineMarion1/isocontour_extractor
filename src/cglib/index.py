@@ -2,10 +2,6 @@ import taichi as ti
 
 
 
-ti.init(arch = ti.cpu)
-
-
-
 @ti.func
 def index2d_to_edge_index(cell: ti.math.ivec2, 
                           grid_shape: ti.math.ivec2)\

@@ -6,10 +6,6 @@ from cglib.fields import count_cycles, fill_final_cycles
 
 
 
-ti.init(arch = ti.cpu)
-
-
-
 @ti.kernel 
 def compute_binary_grid(grid: ti.template(), 
                         binary_grid: ti.template()): 
@@ -106,6 +102,7 @@ def compute_points(grid: ti.template(),
 @ti.kernel
 def compute_adajcency(grid: ti.template(), 
                       binary_grid: ti.template(), 
+                      points: ti.template(),
                       previous_edge: ti.template(),
                       next_edge: ti.template()): 
     '''
@@ -145,122 +142,123 @@ def compute_adajcency(grid: ti.template(),
     grid_shape = ti.math.ivec2(binary_grid.shape[0], 
                                binary_grid.shape[1])
 
-    ti.loop_config(serialize= True)
-    for x_index in range(binary_grid.shape[0]): 
+    for x_index, y_index in binary_grid:
 
-        ti.loop_config(serialize= True)
-        for y_index in range(binary_grid.shape[1]): 
+        #border case
+        if x_index != grid_shape.x-1 and y_index != grid_shape.y-1: 
 
-            #border case
-            if x_index != grid_shape.x-1 and y_index != grid_shape.y-1: 
+            current_cell = ti.math.ivec2(x_index, y_index)
+            edge_indexes = index2d_to_edge_index(current_cell, 
+                                                    grid_shape)
+            current_cell_configuration =\
+                        1*binary_grid[current_cell[0], current_cell[1]] +\
+                        2*binary_grid[current_cell[0], current_cell[1]+1] +\
+                        4*binary_grid[current_cell[0]+1, current_cell[1]+1] +\
+                        8*binary_grid[current_cell[0]+1, current_cell[1]]
 
-                current_cell = ti.math.ivec2(x_index, y_index)
-                edge_indexes = index2d_to_edge_index(current_cell, 
-                                                     grid_shape)
-                current_cell_configuration =\
-                            1*binary_grid[current_cell[0], current_cell[1]] +\
-                            2*binary_grid[current_cell[0], current_cell[1]+1] +\
-                            4*binary_grid[current_cell[0]+1, current_cell[1]+1] +\
-                            8*binary_grid[current_cell[0]+1, current_cell[1]]
+            #for each case of the marching square algorithm, we define the next and previous edge.
+            #the interior of the cycle is always to the left of the edge.
+            if current_cell_configuration == 0 or current_cell_configuration == 15: 
 
-                if current_cell_configuration == 0 or current_cell_configuration == 15: 
-                    for i in range(4): 
-                        next_edge[edge_indexes[i]] = -1
-                        previous_edge[edge_indexes[i]] = -1
+                next_edge[edge_indexes[1]] = -1
+                previous_edge[edge_indexes[1]] = -1
+
+                next_edge[edge_indexes[2]] = -1
+                previous_edge[edge_indexes[2]] = -1
+
+            elif current_cell_configuration == 1: 
+                next_edge[edge_indexes[0]] = edge_indexes[3]
+                previous_edge[edge_indexes[3]] = edge_indexes[0]
+
+                        
+            elif current_cell_configuration == 2: 
+                next_edge[edge_indexes[1]] = edge_indexes[0]
+                previous_edge[edge_indexes[0]] = edge_indexes[1]
                 
-                elif current_cell_configuration == 1: 
+                                    
+            elif current_cell_configuration == 3: 
+                next_edge[edge_indexes[1]] = edge_indexes[3]
+                previous_edge[edge_indexes[3]] = edge_indexes[1]
+            
+                                    
+            elif current_cell_configuration == 4: 
+                next_edge[edge_indexes[2]] = edge_indexes[1]
+                previous_edge[edge_indexes[1]] = edge_indexes[2]
+
+            #two edges in the cell                     
+            elif current_cell_configuration == 5: 
+
+
+                average_value = (grid[current_cell.x, current_cell.y] +\
+                                    grid[current_cell.x, current_cell.y + 1] +\
+                                    grid[current_cell.x+ 1, current_cell.y+1] +\
+                                    grid[current_cell.x+1, current_cell.y])/4
+                
+                if average_value > 0: 
+                    next_edge[edge_indexes[0]] = edge_indexes[1]
+                    previous_edge[edge_indexes[1]] = edge_indexes[0]
+                    
+                    next_edge[edge_indexes[2]] = edge_indexes[3]
+                    previous_edge[edge_indexes[3]] = edge_indexes[2]
+                else: 
                     next_edge[edge_indexes[0]] = edge_indexes[3]
                     previous_edge[edge_indexes[3]] = edge_indexes[0]
+                    
+                    next_edge[edge_indexes[2]] = edge_indexes[1]
+                    previous_edge[edge_indexes[1]] = edge_indexes[2]
+            
+            elif current_cell_configuration == 6: 
+                next_edge[edge_indexes[2]] = edge_indexes[0]
+                previous_edge[edge_indexes[0]] = edge_indexes[2]
 
-                            
-                elif current_cell_configuration == 2: 
+            elif current_cell_configuration == 7: 
+                next_edge[edge_indexes[2]] = edge_indexes[3]
+                previous_edge[edge_indexes[3]] = edge_indexes[2]
+
+            elif current_cell_configuration == 8: 
+                next_edge[edge_indexes[3]] = edge_indexes[2]
+                previous_edge[edge_indexes[2]] = edge_indexes[3]
+
+            elif current_cell_configuration == 9: 
+                next_edge[edge_indexes[0]] = edge_indexes[2]
+                previous_edge[edge_indexes[2]] = edge_indexes[0]
+
+            #two edges in the cell 
+            elif current_cell_configuration == 10: 
+
+                average_value = (grid[current_cell.x, current_cell.y] +\
+                                    grid[current_cell.x, current_cell.y + 1] +\
+                                    grid[current_cell.x+ 1, current_cell.y+1] +\
+                                    grid[current_cell.x+1, current_cell.y])/4
+                
+                if average_value < 0: 
                     next_edge[edge_indexes[1]] = edge_indexes[0]
                     previous_edge[edge_indexes[0]] = edge_indexes[1]
                     
-                                        
-                elif current_cell_configuration == 3: 
-                    next_edge[edge_indexes[1]] = edge_indexes[3]
-                    previous_edge[edge_indexes[3]] = edge_indexes[1]
-                
-                                        
-                elif current_cell_configuration == 4: 
-                    next_edge[edge_indexes[2]] = edge_indexes[1]
-                    previous_edge[edge_indexes[1]] = edge_indexes[2]
-
-                #two edges in the cell                     
-                elif current_cell_configuration == 5: 
-
-
-                    average_value = (grid[current_cell.x, current_cell.y] +\
-                                        grid[current_cell.x, current_cell.y + 1] +\
-                                        grid[current_cell.x+ 1, current_cell.y+1] +\
-                                        grid[current_cell.x+1, current_cell.y])/4
-                    
-                    if average_value > 0: 
-                        next_edge[edge_indexes[0]] = edge_indexes[1]
-                        previous_edge[edge_indexes[1]] = edge_indexes[0]
-                        
-                        next_edge[edge_indexes[2]] = edge_indexes[3]
-                        previous_edge[edge_indexes[3]] = edge_indexes[2]
-                    else: 
-                        next_edge[edge_indexes[0]] = edge_indexes[3]
-                        previous_edge[edge_indexes[3]] = edge_indexes[0]
-                        
-                        next_edge[edge_indexes[2]] = edge_indexes[1]
-                        previous_edge[edge_indexes[1]] = edge_indexes[2]
-                
-                elif current_cell_configuration == 6: 
-                    next_edge[edge_indexes[2]] = edge_indexes[0]
-                    previous_edge[edge_indexes[0]] = edge_indexes[2]
-
-                elif current_cell_configuration == 7: 
-                    next_edge[edge_indexes[2]] = edge_indexes[3]
-                    previous_edge[edge_indexes[3]] = edge_indexes[2]
-
-                elif current_cell_configuration == 8: 
                     next_edge[edge_indexes[3]] = edge_indexes[2]
                     previous_edge[edge_indexes[2]] = edge_indexes[3]
-
-                elif current_cell_configuration == 9: 
-                    next_edge[edge_indexes[0]] = edge_indexes[2]
-                    previous_edge[edge_indexes[2]] = edge_indexes[0]
-
-                #two edges in the cell 
-                elif current_cell_configuration == 10: 
-
-                    average_value = (grid[current_cell.x, current_cell.y] +\
-                                        grid[current_cell.x, current_cell.y + 1] +\
-                                        grid[current_cell.x+ 1, current_cell.y+1] +\
-                                        grid[current_cell.x+1, current_cell.y])/4
-                    
-                    if average_value < 0: 
-                        next_edge[edge_indexes[1]] = edge_indexes[0]
-                        previous_edge[edge_indexes[0]] = edge_indexes[1]
-                        
-                        next_edge[edge_indexes[3]] = edge_indexes[2]
-                        previous_edge[edge_indexes[2]] = edge_indexes[3]
-                    else: 
-                        next_edge[edge_indexes[3]] = edge_indexes[0]
-                        previous_edge[edge_indexes[0]] = edge_indexes[3]
-                        
-                        next_edge[edge_indexes[1]] = edge_indexes[2]
-                        previous_edge[edge_indexes[2]] = edge_indexes[1]       
-
-                elif current_cell_configuration == 11: 
-                    next_edge[edge_indexes[1]] = edge_indexes[2]
-                    previous_edge[edge_indexes[2]] = edge_indexes[1]
-                    
-                elif current_cell_configuration == 12: 
-                    next_edge[edge_indexes[3]] = edge_indexes[1]
-                    previous_edge[edge_indexes[1]] = edge_indexes[3]
-
-                elif current_cell_configuration == 13: 
-                    next_edge[edge_indexes[0]] = edge_indexes[1]
-                    previous_edge[edge_indexes[1]] = edge_indexes[0]
-
-                elif current_cell_configuration == 14: 
+                else: 
                     next_edge[edge_indexes[3]] = edge_indexes[0]
                     previous_edge[edge_indexes[0]] = edge_indexes[3]
+                    
+                    next_edge[edge_indexes[1]] = edge_indexes[2]
+                    previous_edge[edge_indexes[2]] = edge_indexes[1]       
+
+            elif current_cell_configuration == 11: 
+                next_edge[edge_indexes[1]] = edge_indexes[2]
+                previous_edge[edge_indexes[2]] = edge_indexes[1]
+                
+            elif current_cell_configuration == 12: 
+                next_edge[edge_indexes[3]] = edge_indexes[1]
+                previous_edge[edge_indexes[1]] = edge_indexes[3]
+
+            elif current_cell_configuration == 13: 
+                next_edge[edge_indexes[0]] = edge_indexes[1]
+                previous_edge[edge_indexes[1]] = edge_indexes[0]
+
+            elif current_cell_configuration == 14: 
+                next_edge[edge_indexes[3]] = edge_indexes[0]
+                previous_edge[edge_indexes[0]] = edge_indexes[3]
 
 @ti.kernel
 def browse_grid(grid: ti.template(), 
@@ -327,7 +325,7 @@ def browse_grid(grid: ti.template(),
                               ti.math.ivec2(grid.shape[0], grid.shape[1]), 
                               current_cell) == False: 
                 
-                #we just found a new cycle
+                #we just found a new cycle, give a value to the first edge of the cycle.
 
                 edge_indexes = index2d_to_edge_index(ti.math.ivec2(x_index, y_index),
                                                      ti.math.ivec2(binary_grid.shape[0],
@@ -350,7 +348,8 @@ def browse_grid(grid: ti.template(),
 
                     first_edge = edge_indexes[1]
 
-
+                #flood the cycle to associate the correct cycle with each 
+                #point and calculate the length of the cycle.
                 flood(next_edge, 
                       cycle_index, 
                       cycles, 
@@ -499,6 +498,7 @@ def to_graph(grid: ti.template())\
     points = ti.Vector.field(n=2, 
                              dtype=float, 
                              shape=edge_fields_shape) 
+
     points.fill(ti.math.nan)
     compute_points(grid, 
                    binary_grid, 
@@ -510,13 +510,12 @@ def to_graph(grid: ti.template())\
                             shape = edge_fields_shape)
     next_edge= ti.field(dtype = int, 
                         shape = edge_fields_shape)
-    next_edge.fill(-1)
-    previous_edge.fill(-1)
+
     compute_adajcency(grid, 
                       binary_grid, 
+                      points,
                       previous_edge, 
                       next_edge)
-    
     
     # get the cycles of the graph
     cycle_index = ti.field(dtype = int, 

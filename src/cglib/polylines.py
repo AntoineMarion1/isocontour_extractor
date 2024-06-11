@@ -2,10 +2,6 @@ import taichi as ti
 
 
 
-ti.init(arch = ti.cpu)
-
-
-
 @ti.kernel
 def compute_lines(lines: ti.template(), 
                   points: ti.template(), 

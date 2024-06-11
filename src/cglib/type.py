@@ -6,10 +6,6 @@ from svgpathtools import Line, Path, paths2svg
 
 
 
-ti.init(arch = ti.cpu)
-
-
-
 def numpy_to_field(input_filename: str)\
                    -> ti.template(): 
 
@@ -38,7 +34,7 @@ def numpy_to_field(input_filename: str)\
     arr = arr.T
     f = ti.field(dtype = float, shape = arr.shape)
     f.from_numpy(arr)
-    return f
+    return f 
 
 def data_structure_to_numpy(points: ti.template(), 
                             previous_edge: ti.template(), 
