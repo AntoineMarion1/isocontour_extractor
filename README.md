@@ -10,12 +10,12 @@ Extract the iso-contours of a scalar field and stitch them together into a singl
 ## Clone the repository
 
 ```
-git clone --recursive https://github.com/AntoineMarion1/isocontour_extractor.git
+git clone https://github.com/AntoineMarion1/isocontour_extractor.git
 ```
 
 ## Install Conda environment and Python Module Dependencies
 
-The code is written in Python 3.10 and it depends on: 
+The code is written in Python 3.10 and it depends on:
 
 
 - [taichi](https://github.com/taichi-dev/taichi) 
@@ -36,6 +36,10 @@ pip install taichi
 pip install tqdm
 pip install svgpathtools
 ```
+
+## Contouring and Stitching
+
+We provide tools for contouring and stitching. Please see the [README](tools/README.md) in the [tools folder](tools).
 
 ## Install Inkscape
 
