@@ -44,63 +44,7 @@ def compute_binary_grid(grid: ti.template(),
             binary_grid[x_index, y_index] = 1
 
 @ti.kernel
-def compute_points(grid: ti.template(), 
-                   binary_grid: ti.template(), 
-                   points: ti.template()): 
-    '''
-    Compute the position of all points in the graph. 
-
-    Parameters 
-    -------
-
-    grid: ti.template 
-
-        the 2D field containing the scalar field values. 
-        
-    binary_grid : ti.template 
-
-        2D field of the same size than grid, 
-        containing the sine of the scalar field in each cell. 
-
-    points: ti.template
-
-        field containing the coordinates of all the points in the graph, 
-        arranged according to 1D indexes of the grid edges. 
-
-        
-    Returns
-    -------
-
-    None
-    '''
-    grid_shape = ti.math.ivec2(grid.shape[0], grid.shape[1])
-
-    for x_index, y_index in binary_grid: 
-
-        if x_index != grid_shape.x-1 and y_index != grid_shape.y-1: 
-            
-            edge_indexes = index2d_to_edge_index(ti.math.ivec2(x_index, y_index), 
-                                                 grid_shape)
-
-
-            #arête de droite
-            if binary_grid[x_index, y_index+1] !=  binary_grid[x_index+1, y_index+1]: 
-                right_edge_point = linear_interpolation(grid, 
-                                                        ti.math.ivec2(x_index, y_index+1),
-                                                        ti.math.ivec2(x_index+1 , y_index+1), 
-                                                        0.)
-                points[edge_indexes[1]] = right_edge_point
-
-            #arête du bas 
-            if binary_grid[x_index+1, y_index+1] !=  binary_grid[x_index+1, y_index]: 
-                bottom_edge_point = linear_interpolation(grid, 
-                                                        ti.math.ivec2(x_index+1, y_index+1),
-                                                        ti.math.ivec2(x_index+1, y_index), 
-                                                        0.)
-                points[edge_indexes[2]] = bottom_edge_point
-
-@ti.kernel
-def compute_adajcency(grid: ti.template(), 
+def compute_adjacency_and_points(grid: ti.template(), 
                       binary_grid: ti.template(), 
                       points: ti.template(),
                       previous_edge: ti.template(),
@@ -110,7 +54,8 @@ def compute_adajcency(grid: ti.template(),
     for each point of the graph. The interior, i.e. where the field is negative, 
     should always be to the left of the edges. See marching square algorithm
     to understand the way the configuration of a cell is defined. 
-
+    Compute also the coordinates of all the points in the graph.
+    
     Parameters 
     -------
 
@@ -155,6 +100,22 @@ def compute_adajcency(grid: ti.template(),
                         2*binary_grid[current_cell[0], current_cell[1]+1] +\
                         4*binary_grid[current_cell[0]+1, current_cell[1]+1] +\
                         8*binary_grid[current_cell[0]+1, current_cell[1]]
+            
+            #arête de droite
+            if binary_grid[x_index, y_index+1] !=  binary_grid[x_index+1, y_index+1]: 
+                right_edge_point = linear_interpolation(grid, 
+                                                        ti.math.ivec2(x_index, y_index+1),
+                                                        ti.math.ivec2(x_index+1 , y_index+1), 
+                                                        0.)
+                points[edge_indexes[1]] = right_edge_point
+
+            #arête du bas 
+            if binary_grid[x_index+1, y_index+1] !=  binary_grid[x_index+1, y_index]: 
+                bottom_edge_point = linear_interpolation(grid, 
+                                                        ti.math.ivec2(x_index+1, y_index+1),
+                                                        ti.math.ivec2(x_index+1, y_index), 
+                                                        0.)
+                points[edge_indexes[2]] = bottom_edge_point
 
             #for each case of the marching square algorithm, we define the next and previous edge.
             #the interior of the cycle is always to the left of the edge.
@@ -500,10 +461,6 @@ def to_graph(grid: ti.template())\
                              shape=edge_fields_shape) 
 
     points.fill(ti.math.nan)
-    compute_points(grid, 
-                   binary_grid, 
-                   points)
-
 
     # get the adjacency of the graph 
     previous_edge= ti.field(dtype = int, 
@@ -511,7 +468,8 @@ def to_graph(grid: ti.template())\
     next_edge= ti.field(dtype = int, 
                         shape = edge_fields_shape)
 
-    compute_adajcency(grid, 
+
+    compute_adjacency_and_points(grid, 
                       binary_grid, 
                       points,
                       previous_edge, 

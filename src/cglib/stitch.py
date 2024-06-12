@@ -330,8 +330,7 @@ def stitch_all_cycles(points: ti.template(),
 
 
 '''
-
-OPTIMISED VERSION
+OPTIMISED VERSION 
 '''
 
 @ti.func
@@ -341,13 +340,17 @@ def find_edges_with_minimum_energy_with_neighbours(points: ti.template(),
                                                     cycles: ti.template(), 
                                                     energies: ti.template(), 
                                                     minimal_cycle_index: int, 
-                                                    shape: ti.math.ivec2)\
+                                                    shape: ti.math.ivec2, 
+                                                    distance_from_edge: int)\
                                                     -> ti.math.ivec2: 
+    
     '''
     Find an edge in the minimal cycle and an edge outside this cycle such 
     that the patching energy of these two edges is minimal 
     compared with all the other energies. This version uses optimisation 
-    and only calculates energy for neighbours. 
+    and only calculates energy for neighbours. The neighbours are defined
+    as the edges that are at a distance of "distance_from_edge"  are less 
+    from the reference edge.
 
     Parameters 
     ------
@@ -380,7 +383,10 @@ def find_edges_with_minimum_energy_with_neighbours(points: ti.template(),
 
         shape of the scalar field grid
         
+    distance_from_edge: int
 
+        distance from the reference edge to compute the neighbours.
+        
     Returns
     ------
 
@@ -408,7 +414,8 @@ def find_edges_with_minimum_energy_with_neighbours(points: ti.template(),
                                                     next_edge, 
                                                     cycle_index, 
                                                     shape, 
-                                                    current_edge_1d_index)
+                                                    current_edge_1d_index, 
+                                                    distance_from_edge)
 
         if (min_and_index.x < minimal_energy)\
               and (min_and_index.x != ti.math.inf): 
@@ -454,7 +461,8 @@ def compiled_stitching_algorithm_with_neighbours(points: ti.template(),
                                                  cycle_index: ti.template(), 
                                                  cycles: ti.template(), 
                                                  energies: ti.template(), 
-                                                 shape: ti.math.ivec2): 
+                                                 shape: ti.math.ivec2, 
+                                                 distance_from_edge: int): 
 
     '''
     Stitch all the cycles of a graph. This is the compiled function called in an non-compiled
@@ -497,7 +505,10 @@ def compiled_stitching_algorithm_with_neighbours(points: ti.template(),
 
         shape of the scalar field grid (useful to compute neighbours)
 
-        
+    distance_from_edge: int
+
+        distance from the reference edge to compute the neighbours.
+
     Returns
     ------
 
@@ -517,7 +528,8 @@ def compiled_stitching_algorithm_with_neighbours(points: ti.template(),
                                                                                 cycles, 
                                                                                 energies, 
                                                                                 minimal_cycle_index, 
-                                                                                shape)
+                                                                                shape, 
+                                                                                distance_from_edge)
         stitch_two_cycles(previous_edge, 
                           next_edge, 
                           cycle_index, 
@@ -529,10 +541,12 @@ def stitch_all_cycles_with_neighbourhood(points: ti.template(),
                                          next_edge: ti.template(), 
                                          cycle_index: ti.template(), 
                                          cycles: ti.template(), 
-                                         shape: ti.math.ivec2): 
+                                         shape: ti.math.ivec2, 
+                                         distance_from_edge: int): 
     '''
     Version of the algorithm to be called from the Python scope.
-    It uses the optimisation. 
+    It uses the optimisation. We need to create the "energies" field, so this 
+    function is a wrapper for the compiled function.
 
     Parameters 
     ------
@@ -566,6 +580,9 @@ def stitch_all_cycles_with_neighbourhood(points: ti.template(),
 
         shape of the scalar field grid (useful to compute neighbours)
 
+    distance_from_edge: int
+
+        distance from the reference edge to compute the neighbours.
         
     Returns
     ------
@@ -580,4 +597,5 @@ def stitch_all_cycles_with_neighbourhood(points: ti.template(),
                                                  cycle_index, 
                                                  cycles, 
                                                  energies, 
-                                                 shape)
+                                                 shape, 
+                                                 distance_from_edge)

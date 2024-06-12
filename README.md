@@ -31,10 +31,10 @@ Be careful, Taichi supports Python versions from 3.7 to 3.10. The following comm
 conda create --env cglib python=3.10
 conda activate cglib
 conda install pip
-pip install --user -e .
 pip install taichi
 pip install tqdm
 pip install svgpathtools
+pip install --user -e .
 ```
 
 ## Contouring and Stitching

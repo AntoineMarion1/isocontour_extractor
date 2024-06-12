@@ -170,8 +170,8 @@ def compute_neighbours_energies(points: ti.template(),
                                 next_edge: ti.template(), 
                                 cycle_index: ti.template(),
                                 shape: ti.math.ivec2, 
-                                current_edge_1d_index: int)\
-                                -> ti.math.vec2: 
+                                current_edge_1d_index: int, 
+                                distance_from_edge: int) -> ti.math.vec2: 
     '''
     For a given edge of the graph, calculate all the patching energies between this edge 
     and neighbouring edges not belonging to the same cycle. The neighbouring edges are
@@ -222,17 +222,17 @@ def compute_neighbours_energies(points: ti.template(),
 
     minimal_energy = ti.math.inf
     minimum_value_3d_index = ti.math.ivec3(0, 0, 0)
-
+    k = distance_from_edge*2 +1 
     ti.loop_config(serialize= True)
-    for x_index in range(5): 
+    for x_index in range(k): 
         ti.loop_config(serialize= True)
-        for y_index in range(5): 
+        for y_index in range(k): 
             ti.loop_config(serialize= True)
             for z_index in range(2): 
 
                 edge_J_1d_index = edge_3d_to_1d_index(shape, 
-                                                      edge_I_3d_index.x + x_index- 2, 
-                                                      edge_I_3d_index.y + y_index - 2, 
+                                                      edge_I_3d_index.x + x_index - distance_from_edge, 
+                                                      edge_I_3d_index.y + y_index - distance_from_edge, 
                                                       z_index)
                 #if there is a point in the same cycle or no point at all 
                 if (cycle_index[edge_J_1d_index] == edge_I_cycle)\
@@ -266,8 +266,8 @@ def compute_neighbours_energies(points: ti.template(),
                                                                z_index)
 
 
-    res = ti.math.vec3(edge_I_3d_index.x + minimum_value_3d_index.x -2, 
-                       edge_I_3d_index.y + minimum_value_3d_index.y -2, 
+    res = ti.math.vec3(edge_I_3d_index.x + minimum_value_3d_index.x - distance_from_edge, 
+                       edge_I_3d_index.y + minimum_value_3d_index.y - distance_from_edge, 
                        minimum_value_3d_index.z)
 
 

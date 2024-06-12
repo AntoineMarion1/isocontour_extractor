@@ -18,5 +18,4 @@ dependencies = [
     "svgpathtools",
     "tqdm",
     "argparse",
-    "logging"
 ]

@@ -12,7 +12,7 @@ def compute_lines(lines: ti.template(),
     Compute the polylines described by the graph. 
 
     Parameters 
-    __________
+    ----------
 
     points: ti.template
 
@@ -35,7 +35,7 @@ def compute_lines(lines: ti.template(),
 
 
     Returns
-    _______
+    -------
 
     None    
     '''
@@ -69,7 +69,7 @@ def graph_to_polylines(points: ti.template(),
     Returns the polylines of a graph in a field that can be used by the Taichi visualisation tool. 
 
     Parameters 
-    __________
+    ----------
 
     points: ti.template
 
@@ -88,7 +88,7 @@ def graph_to_polylines(points: ti.template(),
         
 
     Returns
-    _______
+    -------
 
     ti.template
 

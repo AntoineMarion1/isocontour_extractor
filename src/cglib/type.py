@@ -6,12 +6,12 @@ from svgpathtools import Line, Path, paths2svg
 
 
 
-def numpy_to_field(input_filename: str)\
+def numpy_to_field(file_path: str)\
                    -> ti.template(): 
 
     '''
     Imports an .npy file containing a scalar field and stores its data in a Taichi field. 
-    the file must be located at data/fields
+    the file must be located at data/fields. A border of -1 is added to the field.
 
     Parameters 
     -------
@@ -29,9 +29,25 @@ def numpy_to_field(input_filename: str)\
         field containing the data of the file 
     '''
 
-    imported_arr = np.load(file = "data/fields/" + input_filename + ".npy")
+    imported_arr = np.load(file_path)
     arr = imported_arr.reshape(imported_arr.shape[1], imported_arr.shape[0])
-    arr = arr.T
+    arr = arr.astype(np.float32) #convert the array to float32
+    arr = arr.T #transpose the array so that the x and y axis are correctly oriented.
+    # Add a border of -1 to the field, so that the edges of the grid 
+    # are not considered as part of the field. 
+    
+    
+    n, m = arr.shape
+    ones_col = np.ones((n, 1))
+    arr = np.hstack((ones_col, arr))
+    arr = np.hstack((arr, ones_col))
+
+    n, m = arr.shape
+    ones_row =  np.ones((1, m))
+    arr = np.vstack((ones_row, arr))
+    arr = np.vstack((arr, ones_row))    
+
+    # Create a Taichi field and import the data from the numpy array.
     f = ti.field(dtype = float, shape = arr.shape)
     f.from_numpy(arr)
     return f 
@@ -122,7 +138,7 @@ def numpy_contour_to_data_structure(file_name: str)\
     
         fields describing the graph
         - points 
-        - preivous_edge 
+        - previous_edge 
         - next_edge 
         - cycle_index 
         - cycles 

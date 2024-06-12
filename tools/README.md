@@ -1,39 +1,67 @@
 # Tools
 
-The main project code is in the `main.py` file. This tool computes the isolines of the scalar field using the marching square algorithm, then stitch them to create one trajectory.
+The main project code is in the `contour.py` and `stitch.py` file. [`contour.py`](#contourpy) compute the isocontour of the scalar field. Once this tool has been used, the [`stitch.py`](#stitchpy) tool can be used to stitch these isocontours. The execution time logs are available in the file `data/log`.
 
-The other tools can be run after [`main.py`](#mainpy) was used: 
+
+The other tools can be run after the previous tools were used: 
 
 - [`visualise.py`](#visualisepy)
 - [`tosvg.py`](#tosvgpy)
 
 
-## `main.py`
+## `contour.py`
 
-Extract the isocontours of a scalar field, then stitch them into a single cycle. 
+Extract the isocontours of a scalar field. 
 
 ### Input
 
-
-- **input_file_path**: .npy file containing the data for a scalar field. 
+- **input_file_path**: path to a .npy file containing the data for a scalar field. 
+- **output_file_name**: name of the file containing the graph data. 
 
 ### Output
-- `data/np/<input_file_path>_cycle.npz` .npz file describing a single stitched cycle. 
-- `data/np/<input_file_path>_contour.npz` .npz file describing the isolines of the scalar field.
-
+- `data/np/<output_file_name>_contour.npz` .npz file describing the isolines of the scalar field.
 
 ### Usage 
-To be entered in the repository root console. 
 
 ```
-python tools/main.py input_file_path
+python tools/contour.py input_file_path output_file_name
 ```
 
 ### Example 
+
+```
+python tools/contour.py data/fields/bunny.npy bunny 
 ```
 
-python tools/main.py bunny 
+
+## `stitch.py`
+
+Stitch the isocontours that have been extracted. 
+
+### Input
+
+- **input_file_path**: path to a .npy file containing the data for a scalar field. 
+- **neighbours**: (optionnal argument) distance from the reference edge to compute the neighbours. The distance is defined as a number of edges in the grid. 
+
+
+### Output
+- `data/np/<output_file_name>_cycle.npz` .npz file describing a single stitched cycle. 
+
+
+### Usage 
+
 ```
+python tools/stitch.py input_file_name neighbours
+```
+
+### Example 
+
+```
+python tools/stitch.py data/bunny.npy 10 
+```
+
+
+
 
 
 ## `visualise.py`
@@ -45,8 +73,9 @@ Display the results of isocontour extraction in a window. The graph lines are bl
 - **input_file_path**: .npy file containing the data for a scalar field
 - **datatosee**: 
     - _scalar_ to display the scalar field 
-    - _contour_ to display the isocontours of the scalar field (press ‘space’ to display the stitched cycle)
-    - _cycle_ to display the print path (press ‘space’ to display the contours)
+    - _contour_ to display the isocontours of the scalar field 
+    - _cycle_ to display the print path 
+    - _both_ to display the isocontours and press 'space' to dispaly the stitched cycle 
 
 
 
@@ -59,7 +88,7 @@ python tools/visualise.py input_file_path datatosee
 
 ### Example 
 ```
-python tools/visualise.py bunny contour
+python tools/visualise.py data/bunny.npy contour
 ```
 
 
@@ -76,19 +105,23 @@ Exports the isocontours or cycle as an SVG file. Please open the exported file w
     - _cycle_ to export the print trajectory 
 
 
-
 ### Output
  
-- `data/svg_files/<input_file_path>_<datatosee>.svg` SVG file containing the cycle(s) of the graph. 
+- `data/svg_files/<output_file_name>_<datatosee>.svg` SVG file containing the cycle(s) of the graph. 
 
 
 ### Usage 
-To be entered in the repository root console. 
 ```
-python tools/tosvg.py input_file_name datatosee
+python tools/tosvg.py input_file_path datatosee
 ```
 
 ### Example 
 ```
-python tools/tosvg.py bunny contour
+python tools/tosvg.py data/bunny.npy contour
 ```
+
+## Troubleshooting
+- If isocontour extraction doesn't work, try reshaping the scalar field by inverting the x and y axes. If this still doesn't work, check that your scalar field has a border with the same sign everywhere. If not, try adding a border of 1. 
+
+- Sometimes the stitching doesn't work. Please try changing the optional neighbours argument. If the sacalr field resolution is high, it should generally be increased, and decreased if the resolution is low. 
+

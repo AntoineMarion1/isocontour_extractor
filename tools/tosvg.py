@@ -1,13 +1,19 @@
+import taichi as ti
 import argparse
+import json
 
 from cglib.type import numpy_contour_to_data_structure, data_structure_to_svg
+
+
+
+ti.init(arch = ti.cpu )
 
 
 
 if __name__ == '__main__': 
     
     parser = argparse.ArgumentParser()
-    parser.add_argument("input_filename", 
+    parser.add_argument("input_file_path", 
                         help= "File in .npy format containing the scalar field to be displayed. ", 
                         type = str) 
     parser.add_argument("datatoexport", 
@@ -15,8 +21,15 @@ if __name__ == '__main__':
                         type= str)
     
     args = parser.parse_args()
-    file_name = args.input_filename
+    file_path = args.input_file_path
     datatoexport = args.datatoexport 
+
+
+    #extract the file name
+    with open('data/do_not_delete/output_file_names.json', 'r') as f:
+        data = json.load(f)
+
+    file_name = data[file_path]
 
     if datatoexport == "contour": 
         
