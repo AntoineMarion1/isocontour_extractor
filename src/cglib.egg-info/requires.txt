@@ -1,0 +1,4 @@
+taichi
+svgpathtools
+tqdm
+argparse

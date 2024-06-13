@@ -7,6 +7,7 @@ import os
 
 from cglib.type import numpy_to_field, data_structure_to_numpy, numpy_contour_to_data_structure
 from cglib.stitch import stitch_all_cycles_with_neighbourhood
+from cglib.check import check_if_one_cycle
 
 
 
@@ -44,6 +45,7 @@ if __name__ == "__main__":
         points, previous_edge, next_edge, cycle_index, cycles =\
                   numpy_contour_to_data_structure(output_file_name + "_contour")
     
+
         #stitch the isocontours
         start_stitch = time.perf_counter()
         stitch_all_cycles_with_neighbourhood(
@@ -58,6 +60,19 @@ if __name__ == "__main__":
         end_stitch = time.perf_counter()
         print("Stitching algorithm runtime : " + str(end_stitch-start_stitch) + " seconds.\n")
 
+
+        #check if the isocontours have been stitched into one cycle
+        start_check = time.perf_counter()
+        test_if_one_cycle = check_if_one_cycle(next_edge, cycles)
+        end_check = time.perf_counter()
+
+        if test_if_one_cycle == 1:
+            print("The isocontours have been stitched into one cycle, the stitching succeeded.\n")
+        else:
+            print("WARNING: The stitching failed, there is more than one cycle.\n")
+        print("Check if there is only one cycle took : " + str(end_check-start_check) + " seconds.\n")
+
+
         #save the cycle
         start_data = time.perf_counter()
         data_structure_to_numpy(
@@ -71,6 +86,15 @@ if __name__ == "__main__":
         print("Cycle data saved in : " + str(end_data-start_data) + " seconds.\n")
         
 
+
+
+        
+        # If the flag file does not exist, this is the first run of the script. 
+        # I will create a log file and a flag file, because I want to keep the logs
+        # of the stitching algorithm only for the first run. If you run the contouring 
+        # script again, the logs will be overwritten.
+        
+
         flag_file = 'data/do_not_delete/flag_' + output_file_name + '.txt'
 
         if not os.path.exists(flag_file):
@@ -80,8 +104,9 @@ if __name__ == "__main__":
                                 filemode='a', 
                                 format='%(message)s', 
                                 level=logging.INFO)
-            logging.info("Now stitch the isocontours of the scalar field : " + output_file_name + ".\n")
-            logging.info("Stitching algorithm runtime : " + str(end_stitch-start_stitch) + " seconds.")
+            logging.info(f"Number of neighbours to consider for the stitching : {neighbours}.")
+            logging.info(f"Stitching algorithm runtime : {end_stitch-start_stitch} seconds.")
+            logging.info(f"Check if there is only one cycle took: {end_check-start_check} seconds.")
             logging.info("Cycle data saved in : " + str(end_data-start_data) + " seconds.\n")
 
             with open(flag_file, 'w') as f:
@@ -89,5 +114,3 @@ if __name__ == "__main__":
         
     except FileNotFoundError: 
         print("Please execute the contour extraction script first.")
-
-

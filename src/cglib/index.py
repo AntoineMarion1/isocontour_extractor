@@ -3,9 +3,9 @@ import taichi as ti
 
 
 @ti.func
-def index2d_to_edge_index(cell: ti.math.ivec2, 
-                          grid_shape: ti.math.ivec2)\
-                          -> ti.math.ivec4: 
+def index2d_to_edge_index(
+        cell: ti.math.ivec2, 
+        grid_shape: ti.math.ivec2) -> ti.math.ivec4: 
     '''
     Give the 1D index of the four edges forming a grid cell. 
     The edges are numbered in the following order: 
@@ -57,9 +57,9 @@ def index2d_to_edge_index(cell: ti.math.ivec2,
     return vec 
 
 @ti.func
-def index2d_to_cartesians_coo(grid_shape: ti.math.ivec2, 
-                              cell: ti.math.ivec2)\
-                              -> ti.math.vec2: 
+def index2d_to_cartesians_coo(
+        grid_shape: ti.math.ivec2, 
+        cell: ti.math.ivec2) -> ti.math.vec2: 
     '''
     Gives the Cartesian coordinates of the point at the top left 
     of the cell whose 2D index is passed as an argument. They 
@@ -94,9 +94,9 @@ def index2d_to_cartesians_coo(grid_shape: ti.math.ivec2,
     return ti.math.vec2(x, y)
 
 @ti.func
-def edge_1d_to_3d_index(shape: ti.math.ivec2, 
-                        edge: int)\
-                        -> ti.math.ivec3: 
+def edge_1d_to_3d_index(
+        shape: ti.math.ivec2, 
+        edge: int) -> ti.math.ivec3: 
     '''
     Gives the 3D index of an edge. The 3D index is obtained as follows: 
         - The z coordinate is 0 for horizontal edges, 1 for vertical edges 
@@ -142,10 +142,11 @@ def edge_1d_to_3d_index(shape: ti.math.ivec2,
     return result 
 
 @ti.func
-def edge_3d_to_1d_index(shape: ti.math.ivec2, 
-                        x: int, 
-                        y: int, 
-                        z: int) -> int: 
+def edge_3d_to_1d_index(
+        shape: ti.math.ivec2, 
+        x: int, 
+        y: int, 
+        z: int) -> int: 
     '''
     Converts the 3D index of an edge to 1D index. 
 

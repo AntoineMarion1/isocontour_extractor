@@ -121,7 +121,7 @@ python tools/tosvg.py data/bunny.npy contour
 ```
 
 ## Troubleshooting
-- If isocontour extraction doesn't work, try reshaping the scalar field by inverting the x and y axes. If this still doesn't work, check that your scalar field has a border with the same sign everywhere. If not, try adding a border of 1. 
+- If _isocontour extraction_ doesn't work, try visualing it with the tool [`tools/visualise.py`](../tools/visualise.py). If the scalar field is not what you expected, try reshaping the scalar field by inverting the x and y axes. If this still doesn't work, check that your scalar field has a border with the same sign everywhere. If not, try adding a border of 1, so that all the cycles extracted are closed.  
 
-- Sometimes the stitching doesn't work. Please try changing the optional neighbours argument. If the sacalr field resolution is high, it should generally be increased, and decreased if the resolution is low. 
+- Sometimes the _stitching_ doesn't work. Please try changing the optional `neighbours` argument. If the scalar field resolution is high, it should generally be increased, and decreased if the resolution is low. If this still doesn't work, try changing the value in the other direction. 
 

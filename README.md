@@ -6,7 +6,7 @@
 Extract the iso-contours of a scalar field and stitch them together into a single path. Part of the [Orientable Dense Cyclic Infill for Anisotropic Appearance Fabrication](https://github.com/mfx-inria/anisotropic_appearance_fabrication) project translated using the Taichi library. Project carried out as part of an end-of-second-year internship at La Prépa des INP, Nancy, France. 
  
 
- 
+
 ## Clone the repository
 
 ```

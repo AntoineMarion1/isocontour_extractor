@@ -5,11 +5,11 @@ from cglib.index import index2d_to_cartesians_coo, edge_1d_to_3d_index, edge_3d_
 
 
 @ti.func
-def linear_interpolation(grid: ti.template(), 
-                         point_0_index : ti.math.ivec2, 
-                         point_1_index: ti.math.ivec2, 
-                         value: float)\
-                         -> ti.math.vec2: 
+def linear_interpolation(
+        grid: ti.template(), 
+        point_0_index : ti.math.ivec2, 
+        point_1_index: ti.math.ivec2, 
+        value: float) -> ti.math.vec2: 
     '''
     Find the point on a segment where a function, or a scalar field is equal to the value in argument
     by approximating this function by a linear function. 
@@ -60,8 +60,8 @@ def linear_interpolation(grid: ti.template(),
                         res_y)
 
 @ti.func
-def euclidean_distance(vector: ti.math.vec2)\
-                 -> float: 
+def euclidean_distance(
+        vector: ti.math.vec2) -> float: 
 
     '''
     Calculate the Euclidean distance of a two-dimensional vector.
@@ -84,11 +84,12 @@ def euclidean_distance(vector: ti.math.vec2)\
     return ti.math.sqrt(vector.x **2 + vector.y**2)
 
 @ti.func
-def compute_all_energies(points: ti.template(), 
-                         next_edge: ti.template(), 
-                         cycle_index: ti.template(), 
-                         energies: ti.template(), 
-                         current_edge_1d_index: int): 
+def compute_all_energies(
+        points: ti.template(), 
+        next_edge: ti.template(), 
+        cycle_index: ti.template(), 
+        energies: ti.template(), 
+        current_edge_1d_index: int): 
    
    
     '''
@@ -147,7 +148,6 @@ def compute_all_energies(points: ti.template(),
         #if there is a point belonging to another cycle
         elif cycle_index[index] != edge_cycle: 
 
-
             energy = 0. 
             edge_J = ti.math.ivec2(index, next_edge[index])
             i_1 = points[edge_I.x]
@@ -166,12 +166,13 @@ def compute_all_energies(points: ti.template(),
             energies[index] = energy 
 
 @ti.func
-def compute_neighbours_energies(points: ti.template(), 
-                                next_edge: ti.template(), 
-                                cycle_index: ti.template(),
-                                shape: ti.math.ivec2, 
-                                current_edge_1d_index: int, 
-                                distance_from_edge: int) -> ti.math.vec2: 
+def compute_neighbours_energies(
+        points: ti.template(), 
+        next_edge: ti.template(), 
+        cycle_index: ti.template(),
+        shape: ti.math.ivec2, 
+        current_edge_1d_index: int, 
+        distance_from_edge: int) -> ti.math.vec2: 
     '''
     For a given edge of the graph, calculate all the patching energies between this edge 
     and neighbouring edges not belonging to the same cycle. The neighbouring edges are
@@ -213,7 +214,7 @@ def compute_neighbours_energies(points: ti.template(),
         y: 1D index of the edge which has the minimal energy with the current edge
     '''
     
-    #I use 3D edge index instead of 1D edge index
+    #we use 3D edge index instead of 1D edge index
     edge_I = ti.math.ivec2(current_edge_1d_index, 
                            next_edge[current_edge_1d_index])
     edge_I_cycle = cycle_index[current_edge_1d_index]
@@ -230,40 +231,50 @@ def compute_neighbours_energies(points: ti.template(),
             ti.loop_config(serialize= True)
             for z_index in range(2): 
 
-                edge_J_1d_index = edge_3d_to_1d_index(shape, 
-                                                      edge_I_3d_index.x + x_index - distance_from_edge, 
-                                                      edge_I_3d_index.y + y_index - distance_from_edge, 
-                                                      z_index)
-                #if there is a point in the same cycle or no point at all 
-                if (cycle_index[edge_J_1d_index] == edge_I_cycle)\
-                  or (cycle_index[edge_J_1d_index] == -1):  
-                    pass
-                
-                #if there is a point in another cycle 
-                else: 
-
-                    energy = 0.
-                    edge_J = ti.math.ivec2(edge_J_1d_index, next_edge[edge_J_1d_index])
-                    i_1 = points[edge_I.x]
-                    i_2 = points[edge_I.y]
-                    j_1 = points[edge_J.x]
-                    j_2 = points[edge_J.y]
-
-                    cross = euclidean_distance(i_1 - j_2) + euclidean_distance(i_2 - j_1) 
-                    no_cross = euclidean_distance(i_1 - j_1) + euclidean_distance(i_2 - j_2)
-
-                    if cross < no_cross: 
-                        energy = cross - euclidean_distance(i_1 - i_2)\
-                          - euclidean_distance(j_2 - j_1)
+                #if the edge is in the grid
+                if edge_I_3d_index.x + x_index - distance_from_edge >= 0.\
+                      and edge_I_3d_index.x + x_index - distance_from_edge < shape.x\
+                      and edge_I_3d_index.y + y_index - distance_from_edge >= 0.\
+                      and edge_I_3d_index.y + y_index - distance_from_edge < shape.y:
+                    
+                    edge_J_1d_index = edge_3d_to_1d_index(shape, 
+                                                        edge_I_3d_index.x + x_index - distance_from_edge, 
+                                                        edge_I_3d_index.y + y_index - distance_from_edge, 
+                                                        z_index)
+                    
+                    #if there is a point in the same cycle or no point at all 
+                    if (cycle_index[edge_J_1d_index] == edge_I_cycle)\
+                    or (cycle_index[edge_J_1d_index] == -1):  
+                        pass
+                    
+                    #if there is a point in another cycle 
                     else: 
-                        energy = no_cross - euclidean_distance(i_1 - i_2)\
-                          - euclidean_distance(j_2 - j_1)
 
-                    if energy < minimal_energy and energy != ti.math.inf: 
-                        minimal_energy = energy
-                        minimum_value_3d_index = ti.math.ivec3(x_index, 
-                                                               y_index, 
-                                                               z_index)
+                        energy = 0.
+                        edge_J = ti.math.ivec2(edge_J_1d_index, 
+                                               next_edge[edge_J_1d_index])
+                        
+                        i_1 = points[edge_I.x]
+                        i_2 = points[edge_I.y]
+                        j_1 = points[edge_J.x]
+                        j_2 = points[edge_J.y]
+
+                        cross = euclidean_distance(i_1 - j_2) + euclidean_distance(i_2 - j_1) 
+                        no_cross = euclidean_distance(i_1 - j_1) + euclidean_distance(i_2 - j_2)
+
+                        if cross < no_cross: 
+                            energy = cross - euclidean_distance(i_1 - i_2)\
+                            - euclidean_distance(j_2 - j_1)
+                        else: 
+                            energy = no_cross - euclidean_distance(i_1 - i_2)\
+                            - euclidean_distance(j_2 - j_1)
+
+                        if energy < minimal_energy\
+                              and energy != ti.math.inf: 
+                            minimal_energy = energy
+                            minimum_value_3d_index = ti.math.ivec3(x_index, 
+                                                                y_index, 
+                                                                z_index)
 
 
     res = ti.math.vec3(edge_I_3d_index.x + minimum_value_3d_index.x - distance_from_edge, 

@@ -63,8 +63,7 @@ def find_minimum_in_field(f: ti.template())\
                         index)
 
 @ti.kernel
-def count_cycles(cycles: ti.template())\
-                 -> int: 
+def count_cycles(cycles: ti.template()) -> int: 
     '''
     Count the numbers of elements (cycles) in the 'cycles' field, 
     used for the graph data. 
@@ -94,8 +93,9 @@ def count_cycles(cycles: ti.template())\
     return cycles_count
     
 @ti.kernel 
-def fill_final_cycles(cycles: ti.template(), 
-                      final_cycles: ti.template()): 
+def fill_final_cycles(
+        cycles: ti.template(), 
+        final_cycles: ti.template()): 
     '''
     Fill the field final_cycles with the data of cycles
 
@@ -120,8 +120,9 @@ def fill_final_cycles(cycles: ti.template(),
         final_cycles[index] = cycles[index]
 
 @ti.kernel
-def compute_pixels(pixels: ti.template(), 
-                   grid: ti.template()): 
+def compute_pixels(
+        pixels: ti.template(), 
+        grid: ti.template()): 
     '''
     Fill the field pixels with the data of grid, in order to be able 
     to display the grid,  which can be in a non-square field. 
@@ -170,8 +171,9 @@ def normalize_grid(grid: ti.template()):
         grid[x_index, y_index] = key / 2 + 0.5
 
 @ti.kernel
-def shift_lines(grid: ti.template(), 
-                lines: ti.template()): 
+def shift_lines(
+        grid: ti.template(), 
+        lines: ti.template()): 
 
 
     '''

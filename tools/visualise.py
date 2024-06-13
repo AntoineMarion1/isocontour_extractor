@@ -88,7 +88,7 @@ if __name__ == "__main__":
                         lines_stitched)   
             
             while window.running: 
-                canvas.set_image(pixels)
+
                 if window.is_pressed(" "): 
                     switch = -1
                 else: 
@@ -127,9 +127,8 @@ if __name__ == "__main__":
                         lines_stitched)
             
             while window.running: 
-                canvas.set_image(pixels)
                 canvas.lines(lines_stitched, 
-                            color=(0., 0., 0.99), 
+                            color=(0.99, 0.99, 0.99), 
                             width=.001)
                 window.show()
 
@@ -159,10 +158,9 @@ if __name__ == "__main__":
                         lines)
             
             while window.running: 
-                canvas.set_image(pixels)
             
                 canvas.lines(lines, 
-                            color=(0., 0.99, 0.), 
+                            color=(0.99, 0.99, 0.99), 
                             width=.001)
                 window.show()
 

@@ -7,11 +7,12 @@ from cglib.calc import compute_all_energies, compute_neighbours_energies
 
 
 @ti.func
-def stitch_two_cycles(previous_edge: ti.template(), 
-                      next_edge: ti.template(), 
-                      cycle_index: ti.template(), 
-                      cycles: ti.template(), 
-                      minimal_energy_edges: ti.math.ivec2):
+def stitch_two_cycles(
+        previous_edge: ti.template(), 
+        next_edge: ti.template(), 
+        cycle_index: ti.template(), 
+        cycles: ti.template(), 
+        minimal_energy_edges: ti.math.ivec2):
     
         
     '''
@@ -82,8 +83,9 @@ def stitch_two_cycles(previous_edge: ti.template(),
     cycles[cycle_2_index] = ti.math.ivec2(0, 0)
 
 @ti.func
-def find_minimal_cycle(cycles: ti.template(), 
-                       nb_cycles: int) -> int: 
+def find_minimal_cycle(
+        cycles: ti.template(), 
+        nb_cycles: int) -> int: 
     '''
     Find the graph cycle with the fewest points. 
 
@@ -121,13 +123,13 @@ def find_minimal_cycle(cycles: ti.template(),
     return minimal_cycle_index
 
 @ti.func
-def find_edges_with_minimum_energy(points: ti.template(), 
-                                   next_edge: ti.template(),  
-                                   cycle_index: ti.template(), 
-                                   cycles: ti.template(), 
-                                   energies: ti.template(), 
-                                   minimal_cycle_index: int)\
-                                   -> ti.math.ivec2: 
+def find_edges_with_minimum_energy(
+        points: ti.template(), 
+        next_edge: ti.template(),  
+        cycle_index: ti.template(), 
+        cycles: ti.template(), 
+        energies: ti.template(), 
+        minimal_cycle_index: int) -> ti.math.ivec2: 
         
         
     '''
@@ -206,12 +208,13 @@ def find_edges_with_minimum_energy(points: ti.template(),
     return minimal_energy_edges
 
 @ti.kernel
-def compiled_stitching_algorithm(points: ti.template(), 
-                                 previous_edge: ti.template(), 
-                                 next_edge: ti.template(), 
-                                 cycle_index: ti.template(), 
-                                 cycles: ti.template(), 
-                                 energies: ti.template()): 
+def compiled_stitching_algorithm(
+        points: ti.template(), 
+        previous_edge: ti.template(), 
+        next_edge: ti.template(), 
+        cycle_index: ti.template(), 
+        cycles: ti.template(), 
+        energies: ti.template()): 
 
     '''
     Stitch all the cycles of a graph. This is the compiled function called in an non-compiled
@@ -275,11 +278,12 @@ def compiled_stitching_algorithm(points: ti.template(),
                           cycles, 
                           minimal_energy_edges)
         
-def stitch_all_cycles(points: ti.template(), 
-                      previous_edge: ti.template(), 
-                      next_edge: ti.template(), 
-                      cycle_index: ti.template(), 
-                      cycles: ti.template()): 
+def stitch_all_cycles(
+        points: ti.template(), 
+        previous_edge: ti.template(), 
+        next_edge: ti.template(), 
+        cycle_index: ti.template(), 
+        cycles: ti.template()): 
     
     '''
     Version of the algorithm to be called from the Python scope.
@@ -334,22 +338,22 @@ OPTIMISED VERSION
 '''
 
 @ti.func
-def find_edges_with_minimum_energy_with_neighbours(points: ti.template(), 
-                                                    next_edge: ti.template(),  
-                                                    cycle_index: ti.template(), 
-                                                    cycles: ti.template(), 
-                                                    energies: ti.template(), 
-                                                    minimal_cycle_index: int, 
-                                                    shape: ti.math.ivec2, 
-                                                    distance_from_edge: int)\
-                                                    -> ti.math.ivec2: 
+def find_edges_with_minimum_energy_with_neighbours(
+        points: ti.template(), 
+        next_edge: ti.template(),  
+        cycle_index: ti.template(), 
+        cycles: ti.template(), 
+        energies: ti.template(), 
+        minimal_cycle_index: int, 
+        shape: ti.math.ivec2, 
+        distance_from_edge: int) -> ti.math.ivec2: 
     
     '''
     Find an edge in the minimal cycle and an edge outside this cycle such 
     that the patching energy of these two edges is minimal 
     compared with all the other energies. This version uses optimisation 
     and only calculates energy for neighbours. The neighbours are defined
-    as the edges that are at a distance of "distance_from_edge"  are less 
+    as the edges that are at a distance of "distance_from_edge"  or less 
     from the reference edge.
 
     Parameters 
@@ -450,23 +454,21 @@ def find_edges_with_minimum_energy_with_neighbours(points: ti.template(),
 
     return minimal_energy_edges
 
-
-
-
-
 @ti.kernel
-def compiled_stitching_algorithm_with_neighbours(points: ti.template(), 
-                                                 previous_edge: ti.template(),
-                                                 next_edge: ti.template(), 
-                                                 cycle_index: ti.template(), 
-                                                 cycles: ti.template(), 
-                                                 energies: ti.template(), 
-                                                 shape: ti.math.ivec2, 
-                                                 distance_from_edge: int): 
+def compiled_stitching_algorithm_with_neighbours(
+        points: ti.template(), 
+        previous_edge: ti.template(),
+        next_edge: ti.template(), 
+        cycle_index: ti.template(), 
+        cycles: ti.template(), 
+        energies: ti.template(), 
+        shape: ti.math.ivec2, 
+        distance_from_edge: int): 
 
     '''
-    Stitch all the cycles of a graph. This is the compiled function called in an non-compiled
-    one because we need to create the "energies" field. This version uses the optimisation.
+    Stitch all the cycles of a graph. This is the compiled 
+    function called in an non-compiled one because we need to 
+    create the "energies" field. This version uses the optimisation.
 
     Parameters 
     ------
@@ -536,13 +538,14 @@ def compiled_stitching_algorithm_with_neighbours(points: ti.template(),
                           cycles, 
                           minimal_energy_edges)
         
-def stitch_all_cycles_with_neighbourhood(points: ti.template(), 
-                                         previous_edge: ti.template(), 
-                                         next_edge: ti.template(), 
-                                         cycle_index: ti.template(), 
-                                         cycles: ti.template(), 
-                                         shape: ti.math.ivec2, 
-                                         distance_from_edge: int): 
+def stitch_all_cycles_with_neighbourhood(
+        points: ti.template(), 
+        previous_edge: ti.template(), 
+        next_edge: ti.template(), 
+        cycle_index: ti.template(), 
+        cycles: ti.template(), 
+        shape: ti.math.ivec2, 
+        distance_from_edge: int): 
     '''
     Version of the algorithm to be called from the Python scope.
     It uses the optimisation. We need to create the "energies" field, so this 

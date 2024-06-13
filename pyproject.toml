@@ -17,5 +17,5 @@ dependencies = [
     "taichi",
     "svgpathtools",
     "tqdm",
-    "argparse",
+    "argparse"
 ]

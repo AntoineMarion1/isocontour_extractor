@@ -6,8 +6,7 @@ from svgpathtools import Line, Path, paths2svg
 
 
 
-def numpy_to_field(file_path: str)\
-                   -> ti.template(): 
+def numpy_to_field(file_path: str) -> ti.template(): 
 
     '''
     Imports an .npy file containing a scalar field and stores its data in a Taichi field. 
@@ -30,13 +29,14 @@ def numpy_to_field(file_path: str)\
     '''
 
     imported_arr = np.load(file_path)
-    arr = imported_arr.reshape(imported_arr.shape[1], imported_arr.shape[0])
+    arr = imported_arr.reshape(imported_arr.shape[1], 
+                               imported_arr.shape[0])
     arr = arr.astype(np.float32) #convert the array to float32
     arr = arr.T #transpose the array so that the x and y axis are correctly oriented.
+    
+    
     # Add a border of -1 to the field, so that the edges of the grid 
     # are not considered as part of the field. 
-    
-    
     n, m = arr.shape
     ones_col = np.ones((n, 1))
     arr = np.hstack((ones_col, arr))
@@ -47,17 +47,20 @@ def numpy_to_field(file_path: str)\
     arr = np.vstack((ones_row, arr))
     arr = np.vstack((arr, ones_row))    
 
+
     # Create a Taichi field and import the data from the numpy array.
-    f = ti.field(dtype = float, shape = arr.shape)
+    f = ti.field(dtype = float, 
+                 shape = arr.shape)
     f.from_numpy(arr)
     return f 
 
-def data_structure_to_numpy(points: ti.template(), 
-                            previous_edge: ti.template(), 
-                            next_edge: ti.template(), 
-                            cycle_index: ti.template(), 
-                            cycles: ti.template(), 
-                            file_name: str): 
+def data_structure_to_numpy(
+        points: ti.template(), 
+        previous_edge: ti.template(), 
+        next_edge: ti.template(), 
+        cycle_index: ti.template(), 
+        cycles: ti.template(), 
+        file_name: str): 
     
     '''
     Exports graph data to an .npz file. The output file will be 
@@ -117,8 +120,11 @@ def data_structure_to_numpy(points: ti.template(),
              cycle_index = cycle_index_array, 
              cycles = cycles_array)
 
-def numpy_contour_to_data_structure(file_name: str)\
-    -> (ti.template(), ti.template(), ti.template(), ti.template(),ti.template()): 
+def numpy_contour_to_data_structure(file_name: str) -> tuple[ti.template(), 
+                                                             ti.template(), 
+                                                             ti.template(), 
+                                                             ti.template(),
+                                                             ti.template()]: 
     
     '''
     Imports graph data from an .npz file and stores it in fields. 
@@ -170,10 +176,11 @@ def numpy_contour_to_data_structure(file_name: str)\
 
     return points, previous_edge, next_edge, cycle_index, cycles
 
-def data_structure_to_svg(points: ti.template(), 
-                          next_edge: ti.template(), 
-                          cycles: ti.template(), 
-                          output_name: str): 
+def data_structure_to_svg(
+        points: ti.template(), 
+        next_edge: ti.template(), 
+        cycles: ti.template(), 
+        output_name: str): 
     '''
     Exports graph data to a SVG file. 
 
@@ -206,9 +213,27 @@ def data_structure_to_svg(points: ti.template(),
     None
     '''
 
-    def vector_to_complex(vec: ti.math.vec2)\
-                         -> complex: 
-        return vec.x + 1j * vec.y
+    def vector_to_complex(vec: ti.math.vec2) -> complex: 
+        '''
+        Converts a 2D vector to a complex number.
+        we use a minus sign for the imaginary part, 
+        so that the y axis is oriented downwards.
+        
+        Parameters
+        -------
+
+        vec: ti.math.vec2
+
+            2D vector to convert to a complex number.
+
+        Returns
+        -------
+
+        complex
+            
+                complex number corresponding to the input vector.
+        '''
+        return vec.x - 1j * vec.y
         
 
     paths = []
@@ -222,7 +247,7 @@ def data_structure_to_svg(points: ti.template(),
 
         if cycle.y != 0: 
 
-            for _ in range(cycle.y): #cycle[1] = longueur du cycle
+            for _ in range(cycle.y): #cycle.t = lenght of the cycle
 
                 end_edge_index = next_edge[start_edge_index]
                 
@@ -240,4 +265,6 @@ def data_structure_to_svg(points: ti.template(),
         cycle_number +=1 
 
     paths2svg.wsvg(paths, 
-                   filename= "data/svg_files/" + output_name + ".svg")
+                   filename= "data/svg_files/"\
+                        + output_name\
+                        + ".svg")

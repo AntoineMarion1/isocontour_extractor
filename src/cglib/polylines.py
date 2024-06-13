@@ -3,10 +3,11 @@ import taichi as ti
 
 
 @ti.kernel
-def compute_lines(lines: ti.template(), 
-                  points: ti.template(), 
-                  next_edge: ti.template(), 
-                  cycles: ti.template()): 
+def compute_lines(
+        lines: ti.template(), 
+        points: ti.template(), 
+        next_edge: ti.template(), 
+        cycles: ti.template()): 
     
     '''
     Compute the polylines described by the graph. 
@@ -60,10 +61,10 @@ def compute_lines(lines: ti.template(),
             next_point = next_edge[point_index]
             point_index = next_point
 
-def graph_to_polylines(points: ti.template(), 
-                       next_edge: ti.template(), 
-                       cycles: ti.template())\
-                       -> ti.template(): 
+def graph_to_polylines(
+        points: ti.template(), 
+        next_edge: ti.template(), 
+        cycles: ti.template()) -> ti.template(): 
 
     '''
     Returns the polylines of a graph in a field that can be used by the Taichi visualisation tool. 
